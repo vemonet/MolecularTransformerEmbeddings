@@ -13,16 +13,16 @@ All testing was done on an Ubuntu 16.04 using Python 3.6.8 with NVIDIA GPUs. No 
 
 1. Ensure Python 3 is installed.
 2. Git clone this repository using the following command:
-```
-git clone https://github.com/mpcrlab/MolecularTransformerEmbeddings.git
+```bash
+git clone https://github.com/vemonet/MolecularTransformerEmbeddings.git
 ```
 3. (Optional) To use GPU resources, make sure the most recent NVIDIA driver is installed on your system.
 4. In the cloned repository, install required python libraries with this command:
-```
-pip3 install -r requirements.txt
+```bash
+pip3 install -e .
 ```
 5. Download string pairs and pretrained weights:
-```
+```bash
 chmod +x download.sh
 ./download.sh
 ```
@@ -31,7 +31,27 @@ chmod +x download.sh
 jupyter notebook
 ```
 
-## Obtaining Embeddings
+## Generate embeddings for SMILES strings
+
+### From python
+
+Generate embeddings for a list of SMILES string from python:
+
+```python
+from molecular_transformer import get_smiles_embeddings
+
+smiles_list = [ "C(CC(C(=O)O)N)CN=C(N)N", "C1=C(NC=N1)CC(C(=O)O)N", "CCC(C)C(C(=O)O)N"]
+embeddings_dict = get_smiles_embeddings(
+    smiles_list,
+    embedding_size=512,
+    max_length=256,
+    num_layers=6,
+    checkpoint_path="./data/pretrained.ckpt",
+)
+print(embeddings_dict["C(CC(C(=O)O)N)CN=C(N)N"])
+```
+
+### From the CLI
 
 1. To obtain embeddings for SMILES strings, simply create a text file with one string per line. Save this file in the data folder as ```YOUR_SMILES_STRINGS.txt```. An example file with 20 amino acids is included:
 ```
@@ -58,7 +78,7 @@ C1CC(NC1)C(=O)O
 ```
 2. In the cloned repository run the following command to generate embeddings for your custom file:
 ```
-python3 embed.py --data_path=data/YOUR_SMILES_STRINGS.txt
+python3 src/molecular_transformer/embed.py --data_path=data/YOUR_SMILES_STRINGS.txt
 ```
 3. Embeddings are saved as a zip of numpy arrays, where each numpy array is an MxN matrix for a molecule. The arrays can be loaded in Python like this:
 ```
@@ -85,15 +105,15 @@ CC(C(=O)N(C)C)NCC1=CC=C(C=C1)[Si](C)(C)C 	N,N-dimethyl-2-[(4-trimethylsilylpheny
 ```
 * To train from scratch on your custom data, run the following command in the cloned repository. Weight checkpoints will be saved after each training epoch in the ```checkpoints``` folder.
 ```
-python3 train.py --data_path=data/YOUR_TRAINING_DATA.tsv
+python3 src/molecular_transformer/train.py --data_path=data/YOUR_TRAINING_DATA.tsv
 ```
 * To finetune the embeddings of a pretrained Transformer on your custom data, provide a path to a pretrained weight file to load before training.
 ```
-python3 train.py --data_path=data/YOUR_TRAINING_DATA.tsv --checkpoint_path=checkpoints/pretrained.ckpt
+python3 src/molecular_transformer/train.py --data_path=data/YOUR_TRAINING_DATA.tsv --checkpoint_path=checkpoints/pretrained.ckpt
 ```
 * To train or finetune without GPU resources, provide the ``--cpu``` flag.
 ```
-python3 train.py --data_path=data/YOUR_TRAINING_DATA.tsv --cpu --num_epochs=5.
+python3 src/molecular_transformer/train.py --data_path=data/YOUR_TRAINING_DATA.tsv --cpu --num_epochs=5.
 ```
 
 A full list of arguments which control network hyperparameters is provided below, as well as in ```train.py```. The pretrained weights provided were trained using a batch size of 96, split across 4 GPUs, training for 2 epochs on a dataset of 83,000,000+ molecules. The 83m file can be downloaded by running the ```download_large.sh``` script.

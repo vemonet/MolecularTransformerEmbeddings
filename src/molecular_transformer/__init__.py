@@ -1,0 +1,1 @@
+from molecular_transformer.embed import get_smiles_embeddings
