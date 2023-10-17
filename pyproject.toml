@@ -70,8 +70,8 @@ features = [
 ]
 
 [tool.hatch.envs.default.scripts]
-train = "python3 src/molecular_transformer/train.py {args}"
-predict = "python3 src/molecular_transformer/predict.py {args}"
+train = "python3 src/smiles_transformer/train.py {args}"
+predict = "python3 src/smiles_transformer/predict.py {args}"
 api = "uvicorn src.api:app --host 0.0.0.0 --reload {args}"
 fmt = [
     "black src/",

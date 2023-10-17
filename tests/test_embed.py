@@ -1,4 +1,4 @@
-from molecular_transformer import get_smiles_embeddings
+from smiles_transformer import get_smiles_embeddings
 
 
 def test_get_smiles_embeddings():
