@@ -5,8 +5,8 @@ import torch
 import numpy as np
 
 import requests
-from src.transformer import Transformer, create_masks
-from src.load_data import ALPHABET_SIZE, EXTRA_CHARS
+from molecular_transformer.transformer import Transformer, create_masks
+from molecular_transformer.load_data import ALPHABET_SIZE, EXTRA_CHARS
 
 
 # wget https://github.com/mpcrlab/MolecularTransformerEmbeddings/releases/download/data/smiles_iupac_train_1m.tsv -O data/smiles_iupac_train_1m.tsv

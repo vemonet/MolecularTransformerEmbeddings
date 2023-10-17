@@ -33,6 +33,7 @@ dependencies = [
     "matplotlib",
     "scikit-learn",
     "torch",
+    "requests",
     # "matplotlib ==3.1.1",
     # "scikit-learn==0.22",
     # "torch ==1.0.0",
@@ -65,7 +66,7 @@ Source = "https://github.com/mpcrlab/MolecularTransformerEmbeddings"
 # ENVIRONMENTS AND SCRIPTS
 [tool.hatch.envs.default]
 features = [
-    # "test",
+    "test",
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -90,6 +91,9 @@ cov = [
 requirements = "pip-compile -o requirements.txt pyproject.toml"
 
 # TOOLS
+[tool.hatch.build]
+sources = ["src"]
+
 [tool.hatch.metadata]
 allow-direct-references = true
 

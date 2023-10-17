@@ -6,7 +6,7 @@ from torch.autograd import Variable
 import math
 import copy
 
-from src.load_data import EXTRA_CHARS
+from molecular_transformer.load_data import EXTRA_CHARS
 
 class OneHotEmbedding(nn.Module):
     def __init__(self, alphabet_size):

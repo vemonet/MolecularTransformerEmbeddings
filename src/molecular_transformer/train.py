@@ -3,8 +3,8 @@ import argparse
 import time
 import torch
 
-from src.transformer import Transformer, create_masks, CosineWithRestarts
-from src.load_data import get_dataloader, ALPHABET_SIZE, EXTRA_CHARS
+from molecular_transformer.transformer import Transformer, create_masks, CosineWithRestarts
+from molecular_transformer.load_data import get_dataloader, ALPHABET_SIZE, EXTRA_CHARS
 
 
 parser = argparse.ArgumentParser()
