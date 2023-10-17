@@ -86,7 +86,7 @@ urls_pretrained = [
     "https://github.com/mpcrlab/MolecularTransformerEmbeddings/releases/download/data/smiles_iupac_train_1m.tsv",
     "https://github.com/mpcrlab/MolecularTransformerEmbeddings/releases/download/checkpoints/pretrained.ckpt",
 ]
-def download_pretrained(urls: list[str] = None, target_folder: str = "./data"):
+def download_pretrained(urls: list[str] = None, target_folder: str = "./data/smiles_transformer"):
     if not urls:
         urls = urls_pretrained
     os.makedirs(target_folder, exist_ok=True)

@@ -3,6 +3,7 @@ import os
 
 import requests
 import torch
+import numpy as np
 
 from smiles_transformer.load_data import ALPHABET_SIZE, EXTRA_CHARS, log, download_pretrained
 from smiles_transformer.transformer import Transformer, create_masks
@@ -23,13 +24,15 @@ def encode_smiles(string, start_char=EXTRA_CHARS["seq_start"], max_length: int =
 
 def get_smiles_embeddings(
     smiles_strings: list[str],
+    mean: bool = True,
     embedding_size: int = 512,
     num_layers: int = 6,
     max_length: int = 256,
-    checkpoint_path: str = "./data/pretrained.ckpt",
+    checkpoint_path: str = "./data/smiles_transformer/pretrained.ckpt",
+    out_file: str = None,
 ):
     download_pretrained()
-    log.info(f"Loaded {len(smiles_strings)} SMILES strings")
+    log.info(f"Computing embeddings for {len(smiles_strings)} SMILES strings")
 
     log.debug("Initializing Transformer...")
     model = Transformer(ALPHABET_SIZE, embedding_size, num_layers).eval()
@@ -53,16 +56,16 @@ def get_smiles_embeddings(
             log.debug(f"embedded {smiles} into {embedding.shape!s} matrix.")
 
     log.info(f"All {len(smiles_strings)} SMILES strings embedded.")
-    # filename = os.path.splitext(os.path.basename(args.data_path))[0]
-    # out_dir = "embeddings/"
-    # out_file = os.path.join(out_dir, filename + ".npz")
 
-    # if not os.path.exists(out_dir):
-    #     os.makedirs(out_dir)
+    if mean:
+        embeddings = np.stack([emb.mean(axis=0) for emb in embeddings]).tolist()
+
+    log.info(f"len(embeddings): {len(embeddings)} {len(embeddings[0])}")
 
     out_dict = {smiles: matrix for smiles, matrix in zip(smiles_strings, embeddings)}
-    # np.savez(out_file, **out_dict)
-    # print("Saved embeddings to", out_file)
+    if out_file:
+        np.savez(out_file, **out_dict)
+        log.info(f"Saved embeddings to {out_file}")
     return out_dict
 
 
@@ -98,6 +101,12 @@ if __name__ == "__main__":
 
     print(args)
 
+    filename = os.path.splitext(os.path.basename(args.data_path))[0]
+    out_dir = "embeddings/"
+    out_file = os.path.join(out_dir, filename + ".npz")
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
     smiles_strings = [line.strip("\n") for line in open(args.data_path)]
     get_smiles_embeddings(
         smiles_strings,
@@ -105,4 +114,5 @@ if __name__ == "__main__":
         max_length=args.max_length,
         num_layers=args.num_layers,
         checkpoint_path=args.checkpoint_path,
+        out_file=out_file,
     )
