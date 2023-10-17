@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from molecular_transformer.load_data import EXTRA_CHARS
+from smiles_transformer.load_data import EXTRA_CHARS
 
 
 class OneHotEmbedding(nn.Module):
