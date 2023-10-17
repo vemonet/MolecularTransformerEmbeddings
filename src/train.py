@@ -3,8 +3,8 @@ import argparse
 import time
 import torch
 
-from transformer import Transformer, create_masks, CosineWithRestarts
-from load_data import get_dataloader, ALPHABET_SIZE, EXTRA_CHARS
+from src.transformer import Transformer, create_masks, CosineWithRestarts
+from src.load_data import get_dataloader, ALPHABET_SIZE, EXTRA_CHARS
 
 
 parser = argparse.ArgumentParser()
@@ -26,12 +26,12 @@ print(args)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if args.cpu:
     DEVICE = torch.device("cpu")
-    
+
 print("{0} GPUs available. Training with {1}.".format(torch.cuda.device_count(), DEVICE))
 
 def print_progress(time, epoch, iters, loss):
     print(str(time), "minutes : epoch", str(epoch), ": batch", str(iters), ": loss =", str(loss))
-    
+
 def save(epoch, model, optimizer):
     checkpoint_name = "checkpoints/epoch_{0}.ckpt".format(epoch+1)
     torch.save({
@@ -41,45 +41,45 @@ def save(epoch, model, optimizer):
                 'lr': optimizer.param_groups[0]['lr']
                 }, checkpoint_name)
     print("saved checkpoint at", checkpoint_name)
-    
+
 def train_epoch(epoch, model, dataloader, optimizer, sched=None):
     model.train()
     start = time.time()
     total_loss = 0
     print_every = max(1, int(len(dataloader) / 100.0))
-    
+
     for i, (smiles, iupac_in, iupac_out, smiles_lens, iupac_lens) in enumerate(dataloader):
         smiles = smiles.to(DEVICE)
         iupac_in = iupac_in.to(DEVICE)
         iupac_out = iupac_out.to(DEVICE)
-        
+
         optimizer.zero_grad()
-        
+
         smiles_mask, iupac_mask = create_masks(smiles, iupac_in, device=DEVICE)
         preds = model(smiles, iupac_in, smiles_mask, iupac_mask)
-        
+
         loss = torch.nn.functional.cross_entropy(preds.view(-1, preds.size(-1)), iupac_out.view(-1), ignore_index=ord(EXTRA_CHARS['pad']))
         #print(loss, preds)
         loss.backward()
         optimizer.step()
         if sched:
             sched.step()
-            
+
         total_loss += loss.item()
-        
+
         if (i+1) % print_every == 0:
             avg_loss = total_loss / float(print_every)
             print_progress((time.time() - start)//60, epoch+1, i+1, avg_loss)
             total_loss = 0
-            
+
         #if (i+1) % SAVE_ITERS == 0:
         #    save(epoch, i+1, NAME, model, optimizer)
-       
+
     avg_loss = total_loss / max(1, (i+1) % print_every)
     print_progress((time.time() - start)//60, epoch+1, i+1, avg_loss)
     save(epoch, model, optimizer)
-    
-    
+
+
 dataloader, dataset = get_dataloader(args.batch_size, args.data_path, max_len=args.max_length)
 
 print("Loaded {0} samples from {1}".format(len(dataset), args.data_path))
@@ -98,7 +98,7 @@ epoch = 0
 if args.checkpoint_path is not None:
     print("Loading pretrained weights from", args.checkpoint_path)
     checkpoint = torch.load(args.checkpoint_path)
-    
+
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     assert optimizer.param_groups[0]['lr'] == checkpoint['lr']
