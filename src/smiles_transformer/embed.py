@@ -24,11 +24,11 @@ def encode_smiles(string, start_char=EXTRA_CHARS["seq_start"], max_length: int =
 
 def get_smiles_embeddings(
     smiles_strings: list[str],
-    mean: bool = True,
     embedding_size: int = 512,
     num_layers: int = 6,
     max_length: int = 256,
     checkpoint_path: str = "./data/smiles_transformer/pretrained.ckpt",
+    mean: bool = True,
     out_file: str = None,
 ):
     download_pretrained()
@@ -58,6 +58,7 @@ def get_smiles_embeddings(
     log.info(f"All {len(smiles_strings)} SMILES strings embedded.")
 
     if mean:
+        # embeddings output to 31 x 512, this means the 31 layers in 1 embeddings of size 512
         embeddings = np.stack([emb.mean(axis=0) for emb in embeddings]).tolist()
 
     log.info(f"len(embeddings): {len(embeddings)} {len(embeddings[0])}")
