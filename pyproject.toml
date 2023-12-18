@@ -91,8 +91,8 @@ cov = [
 requirements = "pip-compile -o requirements.txt pyproject.toml"
 
 # TOOLS
-[tool.hatch.build]
-sources = ["src"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/smiles_transformer"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
